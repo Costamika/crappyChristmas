@@ -85,12 +85,13 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 #pause-btns button:hover{filter:brightness(1.2);}
 
 /* Touch */
-#joy-zone,#look-zone,#fire-btn,#reload-btn,#door-btn{touch-action:none;-webkit-user-select:none;user-select:none;}
+#joy-zone,#look-zone,#fire-btn,#bomb-btn,#reload-btn,#door-btn{touch-action:none;-webkit-user-select:none;user-select:none;}
 #joy-zone{position:absolute;bottom:18px;left:14px;width:120px;height:120px;pointer-events:all;}
 #joy-base{width:120px;height:120px;border-radius:50%;background:#ffffff08;border:2px solid #ffffff22;}
 #joy-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:#aa222266;border:2px solid #cc3333;top:50%;left:50%;transform:translate(-50%,-50%);}
 #look-zone{position:absolute;top:0;right:0;width:55%;height:75%;pointer-events:all;}
 #fire-btn{position:absolute;bottom:26px;right:14px;width:80px;height:80px;border-radius:50%;background:#cc000066;border:3px solid #ff3333;display:flex;align-items:center;justify-content:center;font-size:28px;pointer-events:all;}
+#bomb-btn{position:absolute;bottom:36px;right:104px;width:56px;height:56px;border-radius:50%;background:#5c3a1a99;border:2px solid #c88844;display:flex;align-items:center;justify-content:center;font-size:22px;pointer-events:all;transition:opacity .15s;}
 #reload-btn{position:absolute;bottom:116px;right:20px;width:52px;height:52px;border-radius:50%;background:#44330066;border:2px solid #ffaa44;display:flex;align-items:center;justify-content:center;font-size:20px;color:#ffaa44;pointer-events:all;}
 
 /* Overlay */
@@ -143,7 +144,7 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 @keyframes pickupFade{0%{opacity:.9}100%{opacity:0}}
 #princess-marker{display:none;position:fixed;z-index:12;pointer-events:none;font-size:22px;filter:drop-shadow(0 0 8px #ff1493);transform:translate(-50%,-50%);}
 @media (hover:hover) and (pointer:fine){
-  #joy-zone,#look-zone,#fire-btn,#reload-btn,#door-btn{display:none!important;}
+  #joy-zone,#look-zone,#fire-btn,#bomb-btn,#reload-btn,#door-btn{display:none!important;}
 }
 
 /* Safe area для iPhone с вырезом/полосой */
@@ -155,6 +156,10 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
   #fire-btn {
     bottom: calc(26px + env(safe-area-inset-bottom));
     right: calc(14px + env(safe-area-inset-right));
+  }
+  #bomb-btn {
+    bottom: calc(36px + env(safe-area-inset-bottom));
+    right: calc(104px + env(safe-area-inset-right));
   }
   #reload-btn {
     bottom: calc(116px + env(safe-area-inset-bottom));
@@ -188,6 +193,13 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
     font-size: 20px;
     bottom: calc(10px + env(safe-area-inset-bottom));
     right: calc(8px + env(safe-area-inset-right));
+  }
+  #bomb-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    right: calc(72px + env(safe-area-inset-right));
   }
   #reload-btn {
     width: 38px;
@@ -261,6 +273,7 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
   <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
   <div id="look-zone"></div>
   <div id="fire-btn">💩</div>
+  <div id="bomb-btn" title="Грязевая бомба">💣</div>
   <div id="reload-btn">↺</div>
   <div id="door-btn" style="position:absolute;bottom:116px;right:80px;width:52px;height:52px;border-radius:50%;background:#22334466;border:2px solid #44aa88;display:flex;align-items:center;justify-content:center;font-size:20px;pointer-events:all;">🚪</div>
 </div>
@@ -293,7 +306,7 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
     <div id="lb-list"></div>
     <div id="lb-status"></div>
   </div>
-  <div id="ol-hint">W/S — вперёд/назад &nbsp;|&nbsp; A/D — стрейф &nbsp;|&nbsp; МЫШЬ — поворот &nbsp;|&nbsp; ЛКМ / ПРОБЕЛ — огонь &nbsp;|&nbsp; ПКМ — вперёд + поворот &nbsp;|&nbsp; F — грязевая бомба 💩 &nbsp;|&nbsp; R — перезарядка &nbsp;|&nbsp; E / 🚪 — дверь<br>После босса облей принцессу грязью и подойди вплотную &nbsp;|&nbsp; ESC — освободить мышь &nbsp;|&nbsp; 📱 Джойстик + правая зона + 💩</div>
+  <div id="ol-hint">W/S — вперёд/назад &nbsp;|&nbsp; A/D — стрейф &nbsp;|&nbsp; МЫШЬ — поворот &nbsp;|&nbsp; ЛКМ / ПРОБЕЛ — огонь &nbsp;|&nbsp; ПКМ — вперёд + поворот &nbsp;|&nbsp; F — грязевая бомба 💩 &nbsp;|&nbsp; R — перезарядка &nbsp;|&nbsp; E / 🚪 — дверь<br>После босса облей принцессу грязью и подойди вплотную &nbsp;|&nbsp; ESC — освободить мышь &nbsp;|&nbsp; 📱 Джойстик + правая зона + 💩 + 💣</div>
 </div>
 
 <div id="perk-overlay" style="display:none;position:fixed;inset:0;background:#000000ee;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:25;pointer-events:all;">
@@ -3457,6 +3470,7 @@ function doReload(){
   reloading=true; reloadT=RELOAD_TIME;
   sfxReload();
   document.getElementById('reload-txt').style.display='block';
+  syncBombBtn();
 }
 
 // Альт-огонь: грязевая бомба — тратит 3 заряда, мощный AoE-залп по врагам в конусе
@@ -3467,6 +3481,7 @@ function doMudBomb(){
   if(ammo<MUD_BOMB_COST){ showMsg('💩 НУЖНО 3 ЗАРЯДА!'); return; }
   ammo-=MUD_BOMB_COST; updateAmmoUI();
   mudBombCD=2.2;
+  syncBombBtn();
   weaponKick=1.6; muzzleFlash=.32; addShake(.22);
   runStats.shots++;
   sfxShoot(); playSfx('shoot',.8,.7);
@@ -3975,14 +3990,32 @@ document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.id
 document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===jId){jId=null;jDx=0;jDy=0;jKnob.style.transform='translate(-50%,-50%)';}},{passive:true});
 function updJoy(t){const r=jBase.getBoundingClientRect();let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);const l=Math.sqrt(dx*dx+dy*dy);if(l>JM){dx=dx/l*JM;dy=dy/l*JM;}jDx=dx/JM;jDy=dy/JM;jKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;}
 const lookZone=document.getElementById('look-zone');
-let lId=null,lLast=0;
-lookZone.addEventListener('touchstart',e=>{lId=e.changedTouches[0].identifier;lLast=e.changedTouches[0].clientX;},{passive:true});
-document.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===lId){player.angle-=(t.clientX-lLast)*.004;lLast=t.clientX;}},{passive:true});
+let lId=null,lLastX=0,lLastY=0;
+lookZone.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0];
+  lId=t.identifier; lLastX=t.clientX; lLastY=t.clientY;
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  for(const t of e.changedTouches){
+    if(t.identifier!==lId) continue;
+    const lookMul=.004*mouseSens;
+    player.angle-=(t.clientX-lLastX)*lookMul;
+    player.pitch=Math.max(-.45,Math.min(.85,player.pitch-(t.clientY-lLastY)*lookMul*.85));
+    lLastX=t.clientX; lLastY=t.clientY;
+  }
+},{passive:true});
 document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===lId)lId=null;},{passive:true});
 document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===lId)lId=null;},{passive:true});
 document.getElementById('fire-btn').addEventListener('touchstart',e=>{e.preventDefault();isShooting=true;doShoot();},{passive:false});
 document.getElementById('fire-btn').addEventListener('touchend',e=>{e.preventDefault();isShooting=false;},{passive:false});
 document.getElementById('fire-btn').addEventListener('touchcancel',e=>{e.preventDefault();isShooting=false;},{passive:false});
+const bombBtn=document.getElementById('bomb-btn');
+function syncBombBtn(){
+  if(!bombBtn) return;
+  const ok=gameState==='play'&&!reloading&&mudBombCD<=0&&ammo>=MUD_BOMB_COST;
+  bombBtn.style.opacity=ok?'1':'.4';
+}
+bombBtn.addEventListener('touchstart',e=>{e.preventDefault();doMudBomb();},{passive:false});
 document.getElementById('reload-btn').addEventListener('touchstart',e=>{e.preventDefault();doReload();},{passive:false});
 document.getElementById('door-btn').addEventListener('touchstart',e=>{
   e.preventDefault();
@@ -4149,7 +4182,7 @@ function updateHPUI(){
   document.getElementById('armor-num').textContent=Math.max(0,Math.ceil(player.armor));
   drawPortrait();
 }
-function updateAmmoUI(){ammoNumEl.textContent=ammo;}
+function updateAmmoUI(){ammoNumEl.textContent=ammo;syncBombBtn();}
 let msgT=null;
 function showMsg(txt){const b=document.getElementById('msg');b.textContent=txt;b.style.opacity='1';if(msgT)clearTimeout(msgT);msgT=setTimeout(()=>b.style.opacity='0',2300);}
 function flashHit(color){const el=document.getElementById('hit');el.style.background=color;setTimeout(()=>el.style.background='transparent',90);}
@@ -4303,6 +4336,7 @@ function applyPerk(id){
   if(id==='speed_boost') player.speed=BASE_PLAYER_SPEED*1.2;
   endRunPauseClock();
   gameState='play';
+  syncBombBtn();
   setAudioMuted(false);
   last=performance.now();
   renderer.setAnimationLoop(loop);
@@ -4602,7 +4636,7 @@ function update(dt){
   if(enemyLaughCD>0) enemyLaughCD-=dt;
   if(enemyApproachCD>0) enemyApproachCD-=dt;
   if(hurtSfxCD>0) hurtSfxCD-=dt;
-  if(mudBombCD>0) mudBombCD-=dt;
+  if(mudBombCD>0){ mudBombCD-=dt; if(mudBombCD<=0) syncBombBtn(); }
 
   // Enemies
   for(let i=enemies.length-1;i>=0;i--){
@@ -4983,6 +5017,7 @@ async function startGame(){
   resetSnowAroundPlayer();
   spawnWave(1);
   gameState='play'; last=performance.now();
+  syncBombBtn();
   renderer.setAnimationLoop(loop);
   startMusic('explore');
   startTutorial();
@@ -5135,6 +5170,7 @@ function resumeGame(){
   setAudioMuted(false);
   gameState='play';
   last=performance.now();
+  syncBombBtn();
   // Если пауза прервала intro босса — доспавним сейчас
   if(bossPending&&!bossAlive) finishBossSpawn();
   renderer.setAnimationLoop(loop);
