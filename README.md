@@ -26,6 +26,14 @@
   <img src="docs/screenshots/play.png" alt="Игровой мир" width="720">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/snowman.png" alt="Снеговик на первой волне" width="720">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/ice-alley.png" alt="Ледяной коридор, ретро-CRT и управление с телефона" width="720">
+</p>
+
 Рождественский рынок, ледяные казармы и камера Мега-Санты — всё в одном файле и папке текстур.
 
 ## Сюжет
