@@ -1,0 +1,12 @@
+{
+  "name": "Дерьмовое Рождество 3D",
+  "short_name": "DC3D",
+  "description": "Браузерный 3D-шутер про спасение принцессы гряземётом",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "any",
+  "lang": "ru"
+}

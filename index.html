@@ -3,13 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
 <title>ДЕРЬМОВОЕ РОЖДЕСТВО 3D</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=VT323&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
-#c{display:block;width:100vw;height:100vh;}
-#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9;}
+html,body{height:100%;height:100dvh;width:100%;overflow:hidden;overscroll-behavior:none;}
+body{background:#000;font-family:'VT323',monospace;color:#fff;}
+body.playing{touch-action:none;}
+#c{display:block;width:100%;height:100%;width:100dvw;height:100dvh;}
+#fx{position:fixed;inset:0;width:100%;height:100%;height:100dvh;pointer-events:none;z-index:9;}
 
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10;}
@@ -68,8 +75,15 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 #mm{position:absolute;top:76px;right:12px;width:96px;height:96px;border:1px solid #ffffff22;opacity:.72;image-rendering:pixelated;}
 
 /* Mute button */
-#mute-btn{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:8px;background:#00000066;border:1px solid #ffffff33;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;pointer-events:all;z-index:14;user-select:none;}
-#pause-btn{position:absolute;top:12px;right:54px;width:34px;height:34px;border-radius:8px;background:#00000066;border:1px solid #ffffff33;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;cursor:pointer;pointer-events:all;z-index:14;user-select:none;}
+#mute-btn,#pause-btn,#fs-btn{position:absolute;top:12px;width:34px;height:34px;border-radius:8px;background:#00000066;border:1px solid #ffffff33;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;pointer-events:all;z-index:16;user-select:none;}
+#mute-btn{right:12px;font-size:18px;}
+#pause-btn{right:54px;font-size:16px;}
+#fs-btn{right:96px;font-size:16px;display:none;}
+html.touch-ui #fs-btn{display:flex;}
+html.standalone #fs-btn{display:none;}
+html.touch-ui #lock-hint{display:none!important;}
+html.touch-ui #joy-zone,html.touch-ui #look-zone{display:block!important;}
+html.touch-ui #fire-btn,html.touch-ui #bomb-btn,html.touch-ui #reload-btn,html.touch-ui #door-btn{display:flex!important;}
 #tutorial{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);max-width:80vw;text-align:center;font-family:'Oswald',sans-serif;font-size:16px;color:#eaf4ff;letter-spacing:1px;background:#0c1e34cc;border:1px solid #4a80b055;border-radius:10px;padding:10px 20px;opacity:0;transition:opacity .4s;pointer-events:none;z-index:12;text-shadow:1px 1px 0 #000;}
 #tutorial.on{opacity:1;}
 #pause-overlay{display:none;position:fixed;inset:0;background:#04101fdd;flex-direction:column;align-items:center;justify-content:center;gap:22px;z-index:26;pointer-events:all;}
@@ -84,15 +98,18 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 #pause-btns button#quit-btn{background:#5e1515;border-color:#ff4444;color:#ffeaea;}
 #pause-btns button:hover{filter:brightness(1.2);}
 
-/* Touch */
+/* Touch: левая половина — ход, весь экран под кнопками — обзор */
 #joy-zone,#look-zone,#fire-btn,#bomb-btn,#reload-btn,#door-btn{touch-action:none;-webkit-user-select:none;user-select:none;}
-#joy-zone{position:absolute;bottom:18px;left:14px;width:120px;height:120px;pointer-events:all;}
-#joy-base{width:120px;height:120px;border-radius:50%;background:#ffffff08;border:2px solid #ffffff22;}
+#look-zone{position:absolute;inset:0;width:100%;height:100%;pointer-events:all;z-index:1;}
+#joy-zone{position:absolute;left:0;top:0;width:44%;height:100%;pointer-events:all;z-index:2;}
+#joy-base{position:absolute;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));top:auto;width:120px;height:120px;border-radius:50%;background:#ffffff10;border:2px solid #ffffff28;opacity:.7;pointer-events:none;}
+#joy-zone.held #joy-base{opacity:1;}
 #joy-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:#aa222266;border:2px solid #cc3333;top:50%;left:50%;transform:translate(-50%,-50%);}
-#look-zone{position:absolute;top:0;right:0;width:55%;height:75%;pointer-events:all;}
+#fire-btn,#bomb-btn,#reload-btn,#door-btn{z-index:15;}
 #fire-btn{position:absolute;bottom:26px;right:14px;width:80px;height:80px;border-radius:50%;background:#cc000066;border:3px solid #ff3333;display:flex;align-items:center;justify-content:center;font-size:28px;pointer-events:all;}
 #bomb-btn{position:absolute;bottom:36px;right:104px;width:56px;height:56px;border-radius:50%;background:#5c3a1a99;border:2px solid #c88844;display:flex;align-items:center;justify-content:center;font-size:22px;pointer-events:all;transition:opacity .15s;}
 #reload-btn{position:absolute;bottom:116px;right:20px;width:52px;height:52px;border-radius:50%;background:#44330066;border:2px solid #ffaa44;display:flex;align-items:center;justify-content:center;font-size:20px;color:#ffaa44;pointer-events:all;}
+#door-btn{position:absolute;bottom:116px;right:80px;width:52px;height:52px;border-radius:50%;background:#22334466;border:2px solid #44aa88;display:flex;align-items:center;justify-content:center;font-size:20px;pointer-events:all;}
 
 /* Overlay */
 #overlay{position:fixed;inset:0;background:#000000ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;}
@@ -149,9 +166,9 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 
 /* Safe area для iPhone с вырезом/полосой */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  #joy-zone {
-    bottom: calc(18px + env(safe-area-inset-bottom));
+  #joy-base {
     left: calc(14px + env(safe-area-inset-left));
+    bottom: calc(18px + env(safe-area-inset-bottom));
   }
   #fire-btn {
     bottom: calc(26px + env(safe-area-inset-bottom));
@@ -174,14 +191,16 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
 /* Альбомный режим на телефоне */
 @media (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
   #joy-zone {
-    width: 80px;
-    height: 80px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    left: calc(8px + env(safe-area-inset-left));
+    width: 40%;
+    height: 100%;
+    top: 0;
+    left: 0;
   }
   #joy-base {
     width: 80px;
     height: 80px;
+    left: calc(8px + env(safe-area-inset-left));
+    bottom: calc(8px + env(safe-area-inset-bottom));
   }
   #joy-knob {
     width: 30px;
@@ -216,9 +235,9 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
     font-size: 16px;
   }
   #look-zone {
-    width: 50%;
+    inset: 0;
+    width: 100%;
     height: 100%;
-    top: 0;
   }
   #top {
     padding: 4px 10px;
@@ -269,13 +288,14 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
   <canvas id="mm" width="64" height="64"></canvas>
   <div id="mute-btn" title="Звук вкл/выкл">🔊</div>
   <div id="pause-btn" title="Пауза">⏸</div>
+  <div id="fs-btn" title="Полный экран">⛶</div>
   <div id="tutorial"></div>
   <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
   <div id="look-zone"></div>
   <div id="fire-btn">💩</div>
   <div id="bomb-btn" title="Грязевая бомба">💣</div>
   <div id="reload-btn">↺</div>
-  <div id="door-btn" style="position:absolute;bottom:116px;right:80px;width:52px;height:52px;border-radius:50%;background:#22334466;border:2px solid #44aa88;display:flex;align-items:center;justify-content:center;font-size:20px;pointer-events:all;">🚪</div>
+  <div id="door-btn">🚪</div>
 </div>
 
 <div id="lock-hint">🖱 КЛИКНИ — ЗАХВАТ МЫШИ</div>
@@ -306,7 +326,7 @@ body{background:#000;overflow:hidden;font-family:'VT323',monospace;color:#fff;}
     <div id="lb-list"></div>
     <div id="lb-status"></div>
   </div>
-  <div id="ol-hint">W/S — вперёд/назад &nbsp;|&nbsp; A/D — стрейф &nbsp;|&nbsp; МЫШЬ — поворот &nbsp;|&nbsp; ЛКМ / ПРОБЕЛ — огонь &nbsp;|&nbsp; ПКМ — вперёд + поворот &nbsp;|&nbsp; F — грязевая бомба 💩 &nbsp;|&nbsp; R — перезарядка &nbsp;|&nbsp; E / 🚪 — дверь<br>После босса облей принцессу грязью и подойди вплотную &nbsp;|&nbsp; ESC — освободить мышь &nbsp;|&nbsp; 📱 Джойстик + правая зона + 💩 + 💣</div>
+  <div id="ol-hint">W/S — вперёд/назад &nbsp;|&nbsp; A/D — стрейф &nbsp;|&nbsp; МЫШЬ — поворот &nbsp;|&nbsp; ЛКМ / ПРОБЕЛ — огонь &nbsp;|&nbsp; ПКМ — вперёд + поворот &nbsp;|&nbsp; F — грязевая бомба 💩 &nbsp;|&nbsp; R — перезарядка &nbsp;|&nbsp; E / 🚪 — дверь<br>После босса облей принцессу грязью и подойди вплотную &nbsp;|&nbsp; ESC — освободить мышь &nbsp;|&nbsp; 📱 Левая половина — ход, правая — обзор, 💩 огонь, 💣 бомба</div>
 </div>
 
 <div id="perk-overlay" style="display:none;position:fixed;inset:0;background:#000000ee;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:25;pointer-events:all;">
@@ -345,27 +365,46 @@ import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 // ── SCENE SETUP ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'), antialias:false});
 const isMobileDevice=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+const isTouchUI=isMobileDevice||((navigator.maxTouchPoints||0)>1 && window.matchMedia('(pointer: coarse), (hover: none)').matches)||window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+if(isTouchUI) document.documentElement.classList.add('touch-ui');
+if(window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone) document.documentElement.classList.add('standalone');
+let _fsGuard=0;
 const maxDPR=isMobileDevice?1.0:1.5;
+function viewSize(){
+  const vv=window.visualViewport;
+  return {
+    w:Math.max(1,Math.round((vv&&vv.width)||window.innerWidth)),
+    h:Math.max(1,Math.round((vv&&vv.height)||window.innerHeight))
+  };
+}
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,maxDPR));
-renderer.setSize(window.innerWidth, window.innerHeight);
+{
+  const vs=viewSize();
+  renderer.setSize(vs.w, vs.h);
+}
 renderer.shadowMap.enabled = false;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.8;
 function onResize(){
+  const vs=viewSize();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,maxDPR));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth/window.innerHeight;
+  renderer.setSize(vs.w, vs.h);
+  camera.aspect = vs.w/vs.h;
   camera.updateProjectionMatrix();
   if(composer){
     composer.setPixelRatio(Math.min(window.devicePixelRatio,maxDPR));
-    composer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(vs.w, vs.h);
     updateCrtRes();
   }
 }
 let _resizeT=0;
-function onResizeDebounced(){ clearTimeout(_resizeT); _resizeT=setTimeout(onResize,120); }
+function onResizeDebounced(){ clearTimeout(_resizeT); _resizeT=setTimeout(onResize,80); }
 window.addEventListener('resize', onResizeDebounced);
 window.addEventListener('orientationchange', ()=>setTimeout(onResize,300));
+if(window.visualViewport){
+  visualViewport.addEventListener('resize', onResizeDebounced);
+  visualViewport.addEventListener('scroll', ()=>{ window.scrollTo(0,0); });
+}
 
 // WebGL context loss/restore — иначе на мобильных чёрный экран без восстановления
 let ctxLost=false;
@@ -394,7 +433,7 @@ const _raySprites=[];
 scene.background = new THREE.Color(0x0c2848);
 scene.fog = new THREE.Fog(0x1a4880, 8, 40);
 
-const camera = new THREE.PerspectiveCamera(85, window.innerWidth/window.innerHeight, 0.1, 120);
+const camera = new THREE.PerspectiveCamera(85, viewSize().w/viewSize().h, 0.1, 120);
 camera.position.set(16, 0.5, 16);
 
 // ── POST-PROCESSING (bloom: свечение льда, окон, гирлянд, муззл-флэша) ──
@@ -1781,6 +1820,12 @@ const tutorialSteps=[
   {msg:'🔥 Клавиша F — грязевая бомба (3 заряда)',t:4},
   {msg:'⚡ Убивай подряд — растёт комбо ×2',t:4},
 ];
+const tutorialStepsTouch=[
+  {msg:'📱 Левая половина экрана — ходьба',t:3.6},
+  {msg:'👉 Правая половина — свайп: поворот и взгляд вверх/вниз',t:4.2},
+  {msg:'💩 Огонь, 💣 бомба (3 заряда). У края экрана камера крутится сама',t:4.2},
+  {msg:'⚡ Убивай подряд — растёт комбо ×2',t:3.6},
+];
 let tutStep=-1,tutTimer=0,tutActive=false,tutSeen=false;
 try{ tutSeen=localStorage.getItem('dcx3d_tutseen')==='1'; }catch(e){}
 const tutEl=()=>document.getElementById('tutorial');
@@ -1799,11 +1844,12 @@ function updateTutorial(dt){
   tutTimer-=dt;
   if(tutTimer>0) return;
   tutStep++;
-  if(tutStep>=tutorialSteps.length){ endTutorial(); return; }
+  const steps=isTouchUI?tutorialStepsTouch:tutorialSteps;
+  if(tutStep>=steps.length){ endTutorial(); return; }
   const el=tutEl(); if(!el){ tutActive=false; return; }
-  el.textContent=tutorialSteps[tutStep].msg;
+  el.textContent=steps[tutStep].msg;
   el.classList.add('on');
-  tutTimer=tutorialSteps[tutStep].t;
+  tutTimer=steps[tutStep].t;
 }
 
 // ── DIFFICULTY & PROGRESSION ──────────────────────────────────
@@ -3915,21 +3961,23 @@ function saveSettings(){
   try{ localStorage.setItem('dcx3d_settings',JSON.stringify({sens:mouseSens,sfx:sfxVolume,music:musicVolume})); }catch(e){}
 }
 document.getElementById('c').addEventListener('click',()=>{
+  if(isTouchUI) return;
   if(gameState==='play'&&!mouseLocked) document.getElementById('c').requestPointerLock();
 });
 document.addEventListener('pointerlockchange',()=>{
   mouseLocked=document.pointerLockElement===document.getElementById('c');
-  document.getElementById('lock-hint').style.opacity=mouseLocked?'0':'1';
+  document.getElementById('lock-hint').style.opacity=(mouseLocked||isTouchUI)?'0':'1';
   if(!mouseLocked){isShooting=false;mouseFwd=false;mouseLook=false;}
 });
 document.addEventListener('pointerlockerror',()=>{
   mouseLocked=false;
   const lh=document.getElementById('lock-hint');
-  if(lh){lh.style.opacity='1';}
+  if(lh&&!isTouchUI){lh.style.opacity='1';}
 });
 window.addEventListener('blur',()=>{ clearAllInputState(); });
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
+    if(performance.now()-_fsGuard<1200) return;
     clearAllInputState();
     if(gameState==='play') pauseGame();
   }
@@ -3942,8 +3990,9 @@ document.addEventListener('keydown',e=>{
 function clearAllInputState(){
   for(const kk in keys) delete keys[kk];
   isShooting=false; mouseFwd=false; mouseLook=false;
-  jId=null; jDx=0; jDy=0; lId=null;
+  jId=null; jDx=0; jDy=0; lId=null; lookHoldX=null;
   if(jKnob) jKnob.style.transform='translate(-50%,-50%)';
+  resetJoyBase();
 }
 function releasePointerLock(){
   if(document.pointerLockElement) document.exitPointerLock();
@@ -3983,29 +4032,69 @@ document.addEventListener('contextmenu',e=>{if(gameState==='play')e.preventDefau
 
 // Touch
 const jZone=document.getElementById('joy-zone'),jBase=document.getElementById('joy-base'),jKnob=document.getElementById('joy-knob');
-let jId=null,jDx=0,jDy=0; const JM=42;
-jZone.addEventListener('touchstart',e=>{jId=e.changedTouches[0].identifier;updJoy(e.changedTouches[0]);},{passive:true});
-document.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===jId)updJoy(t);},{passive:true});
-document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===jId){jId=null;jDx=0;jDy=0;jKnob.style.transform='translate(-50%,-50%)';}},{passive:true});
-document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===jId){jId=null;jDx=0;jDy=0;jKnob.style.transform='translate(-50%,-50%)';}},{passive:true});
-function updJoy(t){const r=jBase.getBoundingClientRect();let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);const l=Math.sqrt(dx*dx+dy*dy);if(l>JM){dx=dx/l*JM;dy=dy/l*JM;}jDx=dx/JM;jDy=dy/JM;jKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;}
-const lookZone=document.getElementById('look-zone');
-let lId=null,lLastX=0,lLastY=0;
-lookZone.addEventListener('touchstart',e=>{
+let jId=null,jDx=0,jDy=0;
+function joyRadius(){return Math.max(28,(jBase.offsetWidth||120)*.36);}
+function resetJoyBase(){
+  if(!jBase||!jZone) return;
+  jZone.classList.remove('held');
+  jBase.style.left='';
+  jBase.style.top='';
+  jBase.style.bottom='';
+}
+function placeJoyBase(t){
+  const zr=jZone.getBoundingClientRect();
+  const half=(jBase.offsetWidth||120)/2;
+  let x=t.clientX-zr.left-half;
+  let y=t.clientY-zr.top-half;
+  x=Math.max(4,Math.min(zr.width-half*2-4,x));
+  y=Math.max(4,Math.min(zr.height-half*2-4,y));
+  jBase.style.left=x+'px';
+  jBase.style.top=y+'px';
+  jBase.style.bottom='auto';
+  jZone.classList.add('held');
+}
+jZone.addEventListener('touchstart',e=>{
+  if(jId!==null) return;
   const t=e.changedTouches[0];
-  lId=t.identifier; lLastX=t.clientX; lLastY=t.clientY;
-},{passive:true});
+  jId=t.identifier;
+  placeJoyBase(t);
+  updJoy(t);
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===jId)updJoy(t);},{passive:true});
+document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===jId){jId=null;jDx=0;jDy=0;jKnob.style.transform='translate(-50%,-50%)';resetJoyBase();}},{passive:true});
+document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===jId){jId=null;jDx=0;jDy=0;jKnob.style.transform='translate(-50%,-50%)';resetJoyBase();}},{passive:true});
+function updJoy(t){
+  const r=jBase.getBoundingClientRect();
+  const JM=joyRadius();
+  let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);
+  const l=Math.sqrt(dx*dx+dy*dy);
+  if(l>JM){dx=dx/l*JM;dy=dy/l*JM;}
+  jDx=dx/JM;jDy=dy/JM;
+  jKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+}
+const lookZone=document.getElementById('look-zone');
+let lId=null,lLastX=0,lLastY=0,lookHoldX=null;
+function clampPitch(p){return Math.max(-.45,Math.min(.85,p));}
+lookZone.addEventListener('touchstart',e=>{
+  if(gameState!=='play'||lId!==null) return;
+  const t=e.changedTouches[0];
+  lId=t.identifier; lLastX=t.clientX; lLastY=t.clientY; lookHoldX=t.clientX;
+  e.preventDefault();
+},{passive:false});
 document.addEventListener('touchmove',e=>{
   for(const t of e.changedTouches){
     if(t.identifier!==lId) continue;
-    const lookMul=.004*mouseSens;
-    player.angle-=(t.clientX-lLastX)*lookMul;
-    player.pitch=Math.max(-.45,Math.min(.85,player.pitch-(t.clientY-lLastY)*lookMul*.85));
-    lLastX=t.clientX; lLastY=t.clientY;
+    const dx=t.clientX-lLastX, dy=t.clientY-lLastY;
+    const flick=Math.hypot(dx,dy)>22?1.28:1;
+    player.angle-=dx*.0058*mouseSens*flick;
+    const pitchMul=Math.abs(dx)>Math.abs(dy)*1.55?.0011:.0036;
+    player.pitch=clampPitch(player.pitch-dy*pitchMul*mouseSens);
+    lLastX=t.clientX; lLastY=t.clientY; lookHoldX=t.clientX;
   }
 },{passive:true});
-document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===lId)lId=null;},{passive:true});
-document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===lId)lId=null;},{passive:true});
+document.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===lId){lId=null;lookHoldX=null;}},{passive:true});
+document.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)if(t.identifier===lId){lId=null;lookHoldX=null;}},{passive:true});
 document.getElementById('fire-btn').addEventListener('touchstart',e=>{e.preventDefault();isShooting=true;doShoot();},{passive:false});
 document.getElementById('fire-btn').addEventListener('touchend',e=>{e.preventDefault();isShooting=false;},{passive:false});
 document.getElementById('fire-btn').addEventListener('touchcancel',e=>{e.preventDefault();isShooting=false;},{passive:false});
@@ -4166,6 +4255,7 @@ function winGame(){
   document.getElementById('princess-hint').style.display='none';
   document.getElementById('princess-marker').style.display='none';
   const ol=document.getElementById('overlay'); ol.style.display='flex';
+  document.body.classList.remove('playing');
   document.getElementById('ol-title').innerHTML='ПОБЕДА!<span>ПРИНЦЕССА СПАСЕНА 💩</span>';
   document.getElementById('ol-sub').textContent='«ТЫ ТАКОЙ ДЕРЬМОВЫЙ... НО ТЫ МОЙ ГЕРОЙ!»';
   const sc=document.getElementById('ol-score'); sc.style.display='block';
@@ -4587,6 +4677,11 @@ function update(dt){
   // Поворот (стрелки — для клавиатуры без мыши)
   if(keys['arrowleft']) player.angle+=player.rotSpeed*dt;
   if(keys['arrowright']) player.angle-=player.rotSpeed*dt;
+  if(lId!==null && lookHoldX!=null){
+    const w=viewSize().w;
+    const edge=Math.min(52,w*.14);
+    if(lookHoldX>w-edge) player.angle-=2.15*dt*mouseSens;
+  }
 
   camera.rotation.order='YXZ';
   camera.rotation.y=player.angle;
@@ -4952,7 +5047,8 @@ async function startGame(){
   unlockAudio();
   setAudioMuted(false);
   for(const k in keys) delete keys[k];
-  jId=null; jDx=0; jDy=0; lId=null;
+  jId=null; jDx=0; jDy=0; lId=null; lookHoldX=null;
+  resetJoyBase();
   [...enemies].forEach(e=>removeCorpse(e));
   enemies=[];
   eprojs.forEach(p=>removeEnemyProjectile(p));
@@ -5008,7 +5104,8 @@ async function startGame(){
   document.getElementById('score').textContent='0';
   document.getElementById('wave-txt').textContent='ВОЛНА 1';
   document.getElementById('ol-score').style.display='none';
-  document.getElementById('lock-hint').style.opacity='1';
+  document.getElementById('lock-hint').style.opacity=isTouchUI?'0':'1';
+  document.body.classList.add('playing');
   if(!isWalkable(player.x,player.z,.35)){
     const spot=findFloorSpot(player.x,player.z,.35);
     player.x=spot.x; player.z=spot.z;
@@ -5036,6 +5133,7 @@ function endGame(){
   renderer.setAnimationLoop(loop);
   releasePointerLock();
   const ol=document.getElementById('overlay'); ol.style.display='flex';
+  document.body.classList.remove('playing');
   document.getElementById('ol-title').innerHTML='ТЫ УМЕР<span>GAME OVER</span>';
   document.getElementById('ol-sub').textContent='☃ СНЕГОВИКИ ПОБЕДИЛИ... ПОКА ☃';
   const sc=document.getElementById('ol-score'); sc.style.display='block';
@@ -5130,7 +5228,44 @@ document.querySelectorAll('.diff-btn').forEach(b=>{
   window.__lbSyncTab=(d)=>{ if(panel.style.display==='flex') setTab(d); };
 })();
 
-document.getElementById('ol-btn').addEventListener('click',()=>{startGame().catch(e=>console.error(e));});
+document.getElementById('ol-btn').addEventListener('click',()=>{
+  enterFullscreen();
+  startGame().catch(e=>console.error(e));
+});
+
+function inFullscreen(){
+  return !!(document.fullscreenElement||document.webkitFullscreenElement);
+}
+function enterFullscreen(){
+  if(!isTouchUI) return;
+  if(document.documentElement.classList.contains('standalone')) return;
+  if(inFullscreen()) return;
+  const el=document.documentElement;
+  _fsGuard=performance.now();
+  try{
+    if(el.requestFullscreen){
+      const p=el.requestFullscreen({navigationUI:'hide'});
+      if(p&&p.catch) p.catch(()=>{});
+    } else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }catch(e){}
+}
+function toggleFullscreen(){
+  try{
+    if(inFullscreen()){
+      if(document.exitFullscreen) document.exitFullscreen();
+      else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+    } else enterFullscreen();
+  }catch(e){}
+}
+function syncFsBtn(){
+  const b=document.getElementById('fs-btn');
+  if(!b) return;
+  b.title=inFullscreen()?'Выйти из полного экрана':'Полный экран';
+}
+document.getElementById('fs-btn').addEventListener('click',e=>{e.stopPropagation();toggleFullscreen();});
+document.getElementById('fs-btn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleFullscreen();},{passive:false});
+document.addEventListener('fullscreenchange',()=>{syncFsBtn();onResize();});
+document.addEventListener('webkitfullscreenchange',()=>{syncFsBtn();onResize();});
 
 // ── PAUSE MENU + SETTINGS ─────────────────────────────────────
 function syncSettingsUI(){
@@ -5188,6 +5323,7 @@ function quitToMenu(){
   gameState='menu';
   renderer.setAnimationLoop(null);
   const ol=document.getElementById('overlay'); ol.style.display='flex';
+  document.body.classList.remove('playing');
   document.getElementById('ol-title').innerHTML='ДЕРЬМОВОЕ<span>РОЖДЕСТВО 3D</span>';
   document.getElementById('ol-sub').textContent='☃ СПАСИ ПРИНЦЕССУ. УСТРОЙ ПРАЗДНИК. НАСРИ ВСЕМ. ☃';
   document.getElementById('ol-score').style.display='none';
