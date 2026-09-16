@@ -1,0 +1,10 @@
+# runtime leaderboard data
+lb.sqlite
+lb.sqlite-*
+lb_rate.json
+lb.json
+
+# editor / OS
+.DS_Store
+*~
+*.swp

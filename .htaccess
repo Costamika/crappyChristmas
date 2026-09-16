@@ -1,0 +1,28 @@
+# dc3d — hardening
+Options -Indexes
+ServerSignature Off
+
+# Запрет прямого доступа к данным лидерборда и служебным файлам
+<FilesMatch "^(lb\.sqlite|lb\.json|lb_rate\.json|\.htaccess)$">
+  Require all denied
+</FilesMatch>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^(lb\.sqlite|lb\.json|lb_rate\.json)$">
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+# Запрет исполнения PHP в ассетах уже вынесен в sounds/.htaccess и textures/.htaccess,
+# дубль на всякий случай для вложенных путей
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Блокировать запросы к PHP внутри sounds/ и textures/
+  RewriteRule ^(sounds|textures)/.*\.php$ - [F,L]
+</IfModule>
+
+# Заголовки безопасности (мягкие, не ломают игру)
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
