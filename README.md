@@ -1,9 +1,13 @@
 # Дерьмовое Рождество 3D
 
-**Crappy Christmas** — браузерный 3D-шутер про спасение принцессы гряземётом. Без сборки, без npm: открыл `index.html` и играешь.
+**Crappy Christmas** — браузерный 3D-шутер про спасение принцессы гряземётом. Без сборки, без npm: открыл в браузере и играешь.
 
 <p align="center">
-  <img src="docs/screenshots/menu.png" alt="Стартовое меню" width="720">
+  <a href="https://costamika.github.io/crappyChristmas/"><img src="https://img.shields.io/badge/▶%20Играть%20в%20браузере-cc0000?style=for-the-badge" alt="Играть"></a>
+</p>
+
+<p align="center">
+  <a href="https://costamika.github.io/crappyChristmas/"><img src="docs/screenshots/menu.png" alt="Стартовое меню — нажми, чтобы играть" width="720"></a>
 </p>
 
 <p align="center">
@@ -46,7 +50,9 @@
 
 ## Как запустить
 
-Самый простой способ — любой статический сервер в корне репозитория:
+Онлайн: **[играть на GitHub Pages](https://costamika.github.io/crappyChristmas/)** (таблица рекордов — локальная, без PHP).
+
+На своём компьютере:
 
 ```bash
 python3 -m http.server 8765
